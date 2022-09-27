@@ -5,20 +5,32 @@ services:
   - docker
 
 before_install:
-  - docker build -t robertotesta/react-test -f ./client/Dockerfile.dev ./client
+  - docker build -t robtesta87/react-test -f ./client/Dockerfile.dev ./client
 
 script:
-  - docker run -e CI=true robertotesta/react-test npm test
+  - docker run -e CI=true robtesta87/react-test npm test
 
 after_success:
-  - docker build -t robertotesta/multi-client ./client
-  - docker build -t robertotesta/multi-nginx ./nginx
-  - docker build -t robertotesta/multi-server ./server
-  - docker build -t robertotesta/multi-worker ./worker
+  - docker build -t robtesta87/multi-client ./client
+  - docker build -t robtesta87/multi-nginx ./nginx
+  - docker build -t robtesta87/multi-server ./server
+  - docker build -t robtesta87/multi-worker ./worker
   # Log in to the docker CLI
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   # Take those images and push them to docker hub
-  - docker push robertotesta/multi-client
-  - docker push robertotesta/multi-nginx
-  - docker push robertotesta/multi-server
-  - docker push robertotesta/multi-worker
+  - docker push robtesta87/multi-client
+  - docker push robtesta87/multi-nginx
+  - docker push robtesta87/multi-server
+  - docker push robtesta87/multi-worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: 'eu-central-1'
+  app: 'multi-docker'
+  env: 'MultiDocker-env'
+  bucket_name: 'elasticbeanstalk-eu-central-1-221422314408'
+  bucket_path: 'docker-multi'
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
